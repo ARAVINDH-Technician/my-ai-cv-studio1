@@ -1,0 +1,7 @@
+project_id = "pmegxqfxhluxioyfxlfj"
+
+[functions.generate-summary]
+verify_jwt = false
+
+[functions.build-resume]
+verify_jwt = false

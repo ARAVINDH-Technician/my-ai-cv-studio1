@@ -1,0 +1,57 @@
+.tpl7 {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  padding: 0;
+  min-height: 1100px;
+}
+.tpl7__hero {
+  background: linear-gradient(135deg, var(--accent) 0%, var(--ink) 100%);
+  color: #fff;
+  padding: 48px 48px 56px;
+}
+.tpl7__name {
+  font-size: 40px;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  margin-bottom: 6px;
+}
+.tpl7__email {
+  font-size: 13px;
+  opacity: 0.9;
+  letter-spacing: 0.04em;
+}
+.tpl7__summary {
+  margin-top: 18px;
+  font-size: 14.5px;
+  line-height: 1.6;
+  max-width: 95%;
+  opacity: 0.95;
+}
+.tpl7__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  padding: 32px 36px 48px;
+}
+.tpl7__card {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: 12px;
+  padding: 18px 20px;
+  break-inside: avoid;
+}
+.tpl7__h {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 10px;
+}
+.tpl7__body {
+  font-size: 13px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  color: var(--ink);
+}

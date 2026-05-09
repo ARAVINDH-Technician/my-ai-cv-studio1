@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ resume.name|default:"Resume" }} | Admin Panel</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #172033;
+      --muted: #667085;
+      --line: #d7dce3;
+      --bg: #f4f5f7;
+      --panel: #ffffff;
+      --accent: #2f6f73;
+      --nav: #07152d;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    a { color: inherit; text-decoration: none; }
+    header {
+      background: var(--panel);
+      border-bottom: 1px solid var(--line);
+    }
+    .wrap {
+      width: min(980px, calc(100% - 32px));
+      margin: 0 auto;
+    }
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 22px 0;
+    }
+    h1 {
+      margin: 0;
+      font-size: clamp(28px, 4vw, 44px);
+      line-height: 1.05;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 12px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--line);
+      font-size: 18px;
+      letter-spacing: 0;
+    }
+    .muted { color: var(--muted); }
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 38px;
+      padding: 0 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      font-size: 14px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .button.primary {
+      border-color: var(--nav);
+      background: var(--nav);
+      color: #ffffff;
+    }
+    main { padding: 32px 0 48px; }
+    .resume {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: clamp(22px, 5vw, 42px);
+    }
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 14px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 20px;
+      margin-top: 28px;
+    }
+    .section {
+      margin-top: 28px;
+    }
+    .section:first-child { margin-top: 0; }
+    .text {
+      margin: 0;
+      color: #2f3848;
+      font-size: 15px;
+      line-height: 1.7;
+      white-space: pre-wrap;
+    }
+    .label {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    .value {
+      display: block;
+      overflow-wrap: anywhere;
+      font-size: 15px;
+      font-weight: 700;
+    }
+    @media (max-width: 720px) {
+      .topbar {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap topbar">
+      <div>
+        <h1>{{ resume.name|default:"Untitled resume" }}</h1>
+        <div class="meta">
+          <span>{{ resume.email }}</span>
+          {% if resume.phone %}<span>{{ resume.phone }}</span>{% endif %}
+          {% if resume.location %}<span>{{ resume.location }}</span>{% endif %}
+        </div>
+      </div>
+      <div>
+        <a class="button" href="{% url 'admin_resume_dashboard' %}">Back</a>
+        <a class="button primary" href="/admin/resumes/resume/{{ resume.pk }}/change/">Edit in Django</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <article class="resume">
+      <section class="grid">
+        <div>
+          <span class="label">Saved By</span>
+          <span class="value">{{ resume.user.username }}</span>
+        </div>
+        <div>
+          <span class="label">User Type</span>
+          <span class="value">{{ resume.get_user_role_display }}</span>
+        </div>
+        <div>
+          <span class="label">Template</span>
+          <span class="value">{{ resume.get_template_display }}</span>
+        </div>
+        <div>
+          <span class="label">Theme Color</span>
+          <span class="value">{{ resume.theme_color }}</span>
+        </div>
+        <div>
+          <span class="label">Updated</span>
+          <span class="value">{{ resume.updated_at|date:"M j, Y, g:i A" }}</span>
+        </div>
+      </section>
+
+      {% if resume.school_name or resume.class_grade or resume.college_name or resume.degree or resume.department or resume.cgpa or resume.job_title or resume.company_name %}
+        <section class="grid">
+          {% if resume.school_name %}
+            <div>
+              <span class="label">School Name</span>
+              <span class="value">{{ resume.school_name }}</span>
+            </div>
+          {% endif %}
+          {% if resume.class_grade %}
+            <div>
+              <span class="label">Class / Grade</span>
+              <span class="value">{{ resume.class_grade }}</span>
+            </div>
+          {% endif %}
+          {% if resume.college_name %}
+            <div>
+              <span class="label">College Name</span>
+              <span class="value">{{ resume.college_name }}</span>
+            </div>
+          {% endif %}
+          {% if resume.degree %}
+            <div>
+              <span class="label">Degree</span>
+              <span class="value">{{ resume.degree }}</span>
+            </div>
+          {% endif %}
+          {% if resume.department %}
+            <div>
+              <span class="label">Department</span>
+              <span class="value">{{ resume.department }}</span>
+            </div>
+          {% endif %}
+          {% if resume.cgpa %}
+            <div>
+              <span class="label">CGPA</span>
+              <span class="value">{{ resume.cgpa }}</span>
+            </div>
+          {% endif %}
+          {% if resume.job_title %}
+            <div>
+              <span class="label">Job Title</span>
+              <span class="value">{{ resume.job_title }}</span>
+            </div>
+          {% endif %}
+          {% if resume.company_name %}
+            <div>
+              <span class="label">Company Name</span>
+              <span class="value">{{ resume.company_name }}</span>
+            </div>
+          {% endif %}
+        </section>
+      {% endif %}
+
+      <section class="grid">
+        {% if resume.linkedin %}
+          <div>
+            <span class="label">LinkedIn</span>
+            <a class="value" href="{{ resume.linkedin }}">{{ resume.linkedin }}</a>
+          </div>
+        {% endif %}
+        {% if resume.github %}
+          <div>
+            <span class="label">GitHub</span>
+            <a class="value" href="{{ resume.github }}">{{ resume.github }}</a>
+          </div>
+        {% endif %}
+        {% if resume.portfolio %}
+          <div>
+            <span class="label">Portfolio</span>
+            <a class="value" href="{{ resume.portfolio }}">{{ resume.portfolio }}</a>
+          </div>
+        {% endif %}
+      </section>
+
+      {% if resume.summary %}
+        <section class="section">
+          <h2>Summary</h2>
+          <p class="text">{{ resume.summary }}</p>
+        </section>
+      {% endif %}
+      {% if resume.career_objective %}
+        <section class="section">
+          <h2>Career Objective</h2>
+          <p class="text">{{ resume.career_objective }}</p>
+        </section>
+      {% endif %}
+      {% if resume.professional_summary %}
+        <section class="section">
+          <h2>Professional Summary</h2>
+          <p class="text">{{ resume.professional_summary }}</p>
+        </section>
+      {% endif %}
+      {% if resume.skills %}
+        <section class="section">
+          <h2>Skills</h2>
+          <p class="text">{{ resume.skills }}</p>
+        </section>
+      {% endif %}
+      {% if resume.projects %}
+        <section class="section">
+          <h2>Projects</h2>
+          <p class="text">{{ resume.projects }}</p>
+        </section>
+      {% endif %}
+      {% if resume.internships %}
+        <section class="section">
+          <h2>Internships</h2>
+          <p class="text">{{ resume.internships }}</p>
+        </section>
+      {% endif %}
+      {% if resume.work_experience %}
+        <section class="section">
+          <h2>Work Experience</h2>
+          <p class="text">{{ resume.work_experience }}</p>
+        </section>
+      {% endif %}
+      {% if resume.achievements %}
+        <section class="section">
+          <h2>Achievements</h2>
+          <p class="text">{{ resume.achievements }}</p>
+        </section>
+      {% endif %}
+      {% if resume.certifications %}
+        <section class="section">
+          <h2>Certifications</h2>
+          <p class="text">{{ resume.certifications }}</p>
+        </section>
+      {% endif %}
+      {% if resume.education %}
+        <section class="section">
+          <h2>Education</h2>
+          <p class="text">{{ resume.education }}</p>
+        </section>
+      {% endif %}
+    </article>
+  </main>
+</body>
+</html>
