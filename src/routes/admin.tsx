@@ -1,11 +1,17 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Eye, Lock, LogOut, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ResumePreview } from "@/components/resume/ResumePreview";
-import { deleteAdminResume, readAdminResumes, type AdminResume } from "@/components/resume/adminStore";
+import {
+  deleteAdminResume,
+  deleteAdminResumeRemote,
+  fetchAdminResumes,
+  readAdminResumes,
+  type AdminResume,
+} from "@/components/resume/adminStore";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin")({
@@ -17,13 +23,40 @@ const ADMIN_PASSWORD = "1admin234";
 const ADMIN_SESSION_KEY = "inkwell_admin_session";
 
 function AdminPage() {
-  const [isAuthed, setIsAuthed] = useState(() => sessionStorage.getItem(ADMIN_SESSION_KEY) === "true");
+  const [isAuthed, setIsAuthed] = useState(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [, setRefreshKey] = useState(0);
-  const resumes = readAdminResumes();
+  const [resumes, setResumes] = useState<AdminResume[]>([]);
+  const [clientReady, setClientReady] = useState(false);
   const selected = resumes.find((resume) => resume.id === selectedId) ?? resumes[0] ?? null;
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const authed = sessionStorage.getItem(ADMIN_SESSION_KEY) === "true";
+    setIsAuthed(authed);
+    setClientReady(true);
+    if (!authed) {
+      setResumes(readAdminResumes());
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!clientReady || !isAuthed) return;
+
+    const loadResumes = async () => {
+      try {
+        const fetched = await fetchAdminResumes();
+        setResumes(fetched);
+      } catch (error) {
+        setResumes(readAdminResumes());
+        console.warn("Failed to load Django admin resumes", error);
+      }
+    };
+
+    loadResumes();
+  }, [clientReady, isAuthed]);
 
   const handleLogin = (event: React.FormEvent) => {
     event.preventDefault();
@@ -42,12 +75,22 @@ function AdminPage() {
     setPassword("");
   };
 
-  const handleDelete = (resume: AdminResume) => {
-    deleteAdminResume(resume.id);
-    if (selectedId === resume.id) setSelectedId(null);
-    setRefreshKey((key) => key + 1);
-    toast.success("Resume removed from admin panel");
+  const handleDelete = async (resume: AdminResume) => {
+    try {
+      await deleteAdminResumeRemote(resume.id);
+      deleteAdminResume(resume.id);
+      setResumes((prev) => prev.filter((item) => item.id !== resume.id));
+      if (selectedId === resume.id) setSelectedId(null);
+      toast.success("Resume removed from admin panel");
+    } catch (error) {
+      toast.error("Failed to delete resume from Django backend");
+      console.warn("Django admin delete failed", error);
+    }
   };
+
+  if (!clientReady) {
+    return <div className="min-h-screen bg-[#f4f5f7]" />;
+  }
 
   if (!isAuthed) {
     return (

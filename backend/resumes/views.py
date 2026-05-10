@@ -31,7 +31,7 @@ def _resume_value(data, camel_key, snake_key=None):
 def _cors_response(payload, status=200):
     response = JsonResponse(payload, status=status)
     response["Access-Control-Allow-Origin"] = "*"
-    response["Access-Control-Allow-Methods"] = "POST, OPTIONS"
+    response["Access-Control-Allow-Methods"] = "GET, POST, DELETE, OPTIONS"
     response["Access-Control-Allow-Headers"] = "Content-Type"
     return response
 
@@ -126,6 +126,67 @@ def sync_resume_to_admin(request):
     }
     Resume.objects.update_or_create(id=resume_id, defaults=defaults)
     return _cors_response({"id": resume_id, "saved": True})
+
+
+def _serialize_resume(resume: Resume) -> dict:
+    return {
+        "id": resume.id,
+        "userId": str(resume.user.id),
+        "userEmail": _text(resume.user.email),
+        "userRole": _text(resume.user_role),
+        "name": _text(resume.name),
+        "email": _text(resume.email),
+        "phone": _text(resume.phone),
+        "location": _text(resume.location),
+        "linkedin": _text(resume.linkedin),
+        "github": _text(resume.github),
+        "portfolio": _text(resume.portfolio),
+        "schoolName": _text(resume.school_name),
+        "classGrade": _text(resume.class_grade),
+        "collegeName": _text(resume.college_name),
+        "degree": _text(resume.degree),
+        "department": _text(resume.department),
+        "cgpa": _text(resume.cgpa),
+        "jobTitle": _text(resume.job_title),
+        "companyName": _text(resume.company_name),
+        "workExperience": _text(resume.work_experience),
+        "careerObjective": _text(resume.career_objective),
+        "professionalSummary": _text(resume.professional_summary),
+        "summary": _text(resume.summary),
+        "skills": _text(resume.skills),
+        "projects": _text(resume.projects),
+        "internships": _text(resume.internships),
+        "achievements": _text(resume.achievements),
+        "certifications": _text(resume.certifications),
+        "education": _text(resume.education),
+        "template": _text(resume.template),
+        "themeColor": _text(resume.theme_color),
+        "created_at": resume.created_at.isoformat(),
+        "updated_at": resume.updated_at.isoformat(),
+    }
+
+
+@csrf_exempt
+def admin_resume_list(request):
+    if request.method == "OPTIONS":
+        return _cors_response({})
+    if request.method != "GET":
+        return _cors_response({"error": "GET required"}, status=405)
+
+    resumes = Resume.objects.select_related("user").order_by("-updated_at", "-created_at")
+    return _cors_response([_serialize_resume(resume) for resume in resumes])
+
+
+@csrf_exempt
+def admin_resume_delete(request, pk):
+    if request.method == "OPTIONS":
+        return _cors_response({})
+    if request.method != "DELETE":
+        return _cors_response({"error": "DELETE required"}, status=405)
+
+    resume = get_object_or_404(Resume, pk=pk)
+    resume.delete()
+    return _cors_response({"deleted": True})
 
 
 class ResumeViewSet(viewsets.ModelViewSet):

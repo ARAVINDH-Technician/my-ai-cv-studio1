@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, Check, Download, FileText, Loader2, LogOut, Palette, ShieldCheck, UserRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -20,7 +20,7 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
-  const djangoAdminUrl = import.meta.env.VITE_DJANGO_ADMIN_URL ?? "http://127.0.0.1:8000/";
+  const adminPanelPath = "/admin";
   const navigate = useNavigate();
   const { user, loading, signOut, userRole } = useAuth();
   const [data, setData] = useState<ResumeData>(emptyResume);
@@ -234,9 +234,9 @@ function Index() {
               {user.email}
             </span>
             <Button type="button" variant="outline" size="sm" asChild>
-              <a href={djangoAdminUrl}>
+              <Link to={adminPanelPath}>
                 <ShieldCheck className="h-4 w-4 mr-1.5" /> Admin Panel
-              </a>
+              </Link>
             </Button>
             <Button type="button" variant="ghost" size="sm" onClick={signOut}>
               <LogOut className="h-4 w-4 mr-1.5" /> Sign out
